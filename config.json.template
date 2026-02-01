@@ -1,0 +1,14 @@
+{
+  "api_username": "",
+  "api_password": "",
+  "data": "./data",
+  "html": "./html",
+  "stops": [
+    {
+      "stop_id": "0500CCITY517",
+      "stop_name": "Outpatients"
+    }
+  ],
+  "output_html_file": "buses.html",
+  "output_html_title": "Page Title for Departures"
+}
