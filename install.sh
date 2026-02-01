@@ -115,6 +115,35 @@ WantedBy=timers.target
 EOF
 
 # ---------------------------------------------------------
+# 8. Install Chromium service
+# ---------------------------------------------------------
+
+echo "Installing Chromium kiosk service..."
+
+cat > "$SYSTEMD_USER_DIR/kiosk-chromium.service" << 'EOF'
+[Unit]
+Description=Chromium Kiosk Mode
+BindsTo=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+Environment=WAYLAND_DISPLAY=wayland-0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+ExecStart=/usr/bin/chromium \
+  --start-fullscreen \
+  --noerrdialogs \
+  --disable-infobars \
+  --disable-session-crashed-bubble \
+  file://%h/NextBus-GB-API-Python-parser/html/buses.html
+Restart=on-failure
+
+[Install]
+WantedBy=graphical-session.target
+EOF
+
+
+# ---------------------------------------------------------
 # Reload + enable (DEFERRED UNTIL USER SESSION EXISTS)
 # ---------------------------------------------------------
 echo
@@ -129,6 +158,7 @@ cat > "$ENABLE_SCRIPT" << EOF
 echo "Enabling light sensor services..."
 systemctl --user daemon-reload
 systemctl --user enable --now lightcheck.timer
+systemctl --user enable --now kiosk-chromium.service
 echo "Services enabled successfully."
 echo "Rebooting now..."
 sleep 2
@@ -155,4 +185,3 @@ echo "After that:"
 echo " - Monitor turns off in the dark"
 echo " - Monitor turns on in the light"
 echo " - Script runs every 5 minutes"
-
