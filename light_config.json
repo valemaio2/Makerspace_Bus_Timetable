@@ -1,0 +1,5 @@
+{
+  "pin": 4,
+  "threshold": 100000,
+  "duration_seconds": 120
+}
