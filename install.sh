@@ -53,6 +53,10 @@ curl -fsSL \
 curl -fsSL \
   -o "$PROJECT_DIR/update.sh" \
   "https://raw.githubusercontent.com/valemaio2/Makerspace_Bus_Timetable/refs/heads/main/update.sh"
+  
+curl -fsSL \
+  -o "$PROJECT_DIR/template.html" \
+  "https://raw.githubusercontent.com/valemaio2/Makerspace_Bus_Timetable/refs/heads/main/template.html"
 
 # Ensure update.sh is executable
 chmod +x "$PROJECT_DIR/update.sh"
