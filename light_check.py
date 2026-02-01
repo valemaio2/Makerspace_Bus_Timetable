@@ -2,22 +2,26 @@ import RPi.GPIO as GPIO
 import time
 import json
 import subprocess
-import os
+from pathlib import Path
+
+# Base directory for all files
+BASE_DIR = Path.home() / "NextBus-GB-API-Python-parser"
 
 # Load config
-with open("%h/NextBus-GB-API-Python-parser/light_config.json") as f:
+config_path = BASE_DIR / "light_config.json"
+with open(config_path) as f:
     cfg = json.load(f)
 
 PIN = cfg["pin"]
 THRESHOLD = cfg["threshold"]
 DURATION = cfg["duration_seconds"]
 
-LOGFILE = "%h/NextBus-GB-API-Python-parser/light.log"
+LOGFILE = BASE_DIR / "light.log"
 
 # LOGGING ENABLED - use only one!
-#def log(msg):
-#    with open(LOGFILE, "a") as f:
-#        f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + msg + "\n")
+# def log(msg):
+#     with open(LOGFILE, "a") as f:
+#         f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + msg + "\n")
 
 # LOGGING DISABLED - use only one!
 def log(msg):
@@ -61,7 +65,7 @@ if bright_detected:
 
     log("Running update.sh")
     subprocess.run(
-        ["%h/NextBus-GB-API-Python-parser/update.sh"],
+        [str(BASE_DIR / "update.sh")],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
@@ -72,3 +76,4 @@ else:
         ["systemctl", "--user", "start", "monitorctl@off"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
+    )
