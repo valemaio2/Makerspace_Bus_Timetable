@@ -5,14 +5,14 @@ import subprocess
 import os
 
 # Load config
-with open("/home/hackspace/buses-api/light_config.json") as f:
+with open("%h/NextBus-GB-API-Python-parser/light_config.json") as f:
     cfg = json.load(f)
 
 PIN = cfg["pin"]
 THRESHOLD = cfg["threshold"]
 DURATION = cfg["duration_seconds"]
 
-LOGFILE = "/home/hackspace/buses-api/light.log"
+LOGFILE = "%h/NextBus-GB-API-Python-parser/light.log"
 
 # LOGGING ENABLED - use only one!
 #def log(msg):
@@ -61,7 +61,7 @@ if bright_detected:
 
     log("Running update.sh")
     subprocess.run(
-        ["/home/hackspace/buses-api/update.sh"],
+        ["%h/NextBus-GB-API-Python-parser/update.sh"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
@@ -72,4 +72,3 @@ else:
         ["systemctl", "--user", "start", "monitorctl@off"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
-    )
