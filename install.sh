@@ -2,9 +2,8 @@
 
 set -e
 
-USER_NAME="hackspace"
-USER_HOME="/home/$USER_NAME"
-PROJECT_DIR="$USER_HOME/buses-api"
+USER_HOME="/home/$USER"
+PROJECT_DIR="$USER_HOME/NextBus-GB-API-Python-parser"
 SYSTEMD_USER_DIR="$USER_HOME/.config/systemd/user"
 
 echo "=============================================="
@@ -32,20 +31,36 @@ echo
 # ---------------------------------------------------------
 # 3. Enable user lingering
 # ---------------------------------------------------------
-echo "[3/7] Enabling user lingering for $USER_NAME..."
-sudo loginctl enable-linger "$USER_NAME"
+echo "[3/7] Enabling user lingering for $USER..."
+sudo loginctl enable-linger "$USER"
 
 # ---------------------------------------------------------
-# 4. Create project directory
+# 4. Create project directory + download light sensor files
 # ---------------------------------------------------------
 echo "[4/7] Creating project directory at $PROJECT_DIR..."
 mkdir -p "$PROJECT_DIR"
 
-echo "Place your files into $PROJECT_DIR:"
-echo " - light_check.py"
-echo " - light_config.json"
-echo " - update.sh"
-echo " - any HTML/template files"
+echo "[4/7] Downloading light sensor files into $PROJECT_DIR..."
+
+curl -fsSL \
+  -o "$PROJECT_DIR/light_check.py" \
+  "https://raw.githubusercontent.com/valemaio2/Makerspace_Bus_Timetable/refs/heads/main/light_check.py"
+
+curl -fsSL \
+  -o "$PROJECT_DIR/light_config.json" \
+  "https://raw.githubusercontent.com/valemaio2/Makerspace_Bus_Timetable/refs/heads/main/light_config.json"
+
+curl -fsSL \
+  -o "$PROJECT_DIR/update.sh" \
+  "https://raw.githubusercontent.com/valemaio2/Makerspace_Bus_Timetable/refs/heads/main/update.sh"
+
+# Ensure update.sh is executable
+chmod +x "$PROJECT_DIR/update.sh"
+
+echo "Downloaded:"
+echo " - $PROJECT_DIR/light_check.py"
+echo " - $PROJECT_DIR/light_config.json"
+echo " - $PROJECT_DIR/update.sh"
 echo
 
 # ---------------------------------------------------------
@@ -83,7 +98,7 @@ After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /home/hackspace/buses-api/light_check.py
+ExecStart=/usr/bin/python3 %h/NextBus-GB-API-Python-parser/light_check.py
 EOF
 
 cat > "$SYSTEMD_USER_DIR/lightcheck.timer" << 'EOF'
@@ -100,29 +115,44 @@ WantedBy=timers.target
 EOF
 
 # ---------------------------------------------------------
-# Reload + enable
+# Reload + enable (DEFERRED UNTIL USER SESSION EXISTS)
 # ---------------------------------------------------------
 echo
-echo "Reloading systemd user units..."
-sudo -u "$USER_NAME" systemctl --user daemon-reload
-
-echo "Enabling lightcheck.timer..."
-sudo -u "$USER_NAME" systemctl --user enable --now lightcheck.timer
-
+echo "Systemd user services installed, but cannot be enabled yet."
+echo "This is normal on Raspberry Pi OS 13 (Wayland)."
 echo
+
+ENABLE_SCRIPT="$USER_HOME/enable-light-sensor-services.sh"
+
+cat > "$ENABLE_SCRIPT" << EOF
+#!/bin/bash
+echo "Enabling light sensor services..."
+systemctl --user daemon-reload
+systemctl --user enable --now lightcheck.timer
+echo "Services enabled successfully."
+echo "Rebooting now..."
+sleep 2
+sudo reboot
+EOF
+
+chmod +x "$ENABLE_SCRIPT"
+chown "$USER:$USER" "$ENABLE_SCRIPT"
+
+RED="\e[1;31m"
+RESET="\e[0m"
+
 echo "============================================================"
 echo " Installation complete!"
 echo "============================================================"
 echo
-echo "Before rebooting, ensure your project files exist in:"
-echo "  $PROJECT_DIR"
+echo -e "${RED}IMPORTANT:${RESET}"
+echo "After reboot, log in as $USER on the desktop and run:"
+echo "  $ENABLE_SCRIPT"
 echo
-echo "Then reboot:"
-echo "  sudo reboot"
+echo "This will enable the systemd user services correctly. The system will reboot again."
 echo
-echo "After reboot:"
+echo "After that:"
 echo " - Monitor turns off in the dark"
 echo " - Monitor turns on in the light"
-echo " - Chromium loads correctly"
 echo " - Script runs every 5 minutes"
-echo
+
