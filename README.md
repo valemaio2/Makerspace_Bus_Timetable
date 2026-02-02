@@ -1,7 +1,7 @@
 # Makerspace_Bus_Timetable
 Automated bus/train timetable for the Makerspace
 ## Wiring
-* 1 photocapacitor
+* 1 photoresistor
 * 1 1μF capacitor
 
 - Leg 1 photoresistor to 3.3V on GPI
