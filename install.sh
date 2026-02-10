@@ -138,7 +138,7 @@ ExecStart=/usr/bin/chromium \
   --start-fullscreen \
   --noerrdialogs \
   --disable-infobars \
-  --disable-session-crashed-bubble \
+  --hide-crash-restore-bubble \
   file://%h/NextBus-GB-API-Python-parser/html/buses.html
 Restart=on-failure
 
